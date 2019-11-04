@@ -1,0 +1,71 @@
+<p style="background-color:#00b0f0; padding: 5px; margin: 3px auto; widows:3; orphans:3;"><span style="color:#ffffff;font-size: 24px; font-weight: bold;">配置单次任务at</span></p>
+​
+###  一、 任务描述
+​
+蜜罐是一种软件应用系统，用来称当入侵诱饵，引诱黑客前来攻击。攻击者入侵后，通过监测与分析，就可以知道他是如何入侵的，随时了解针对组织服务器发动的最新的攻击和漏洞。 当多个蜜罐被网络连接在一起时模拟一个大型网络，并利用其中一部分主机吸引黑客入侵，通过监测、观察入侵过程，一方面调查入侵者的来源，另一方面考察用于防护的安全措施是否有效。这种由多个蜜罐组成的模拟网络就称为蜜网。
+
+###  二、 任务目标
+​
+利用kali的metasploit软件实现攻击，测试T-pot的入侵检测系统
+​
+###  三、 任务环境
+​
+vmware虚拟机软件 kalilinux镜像
+​
+###  四、 任务实施
+1.1 安装虚拟机镜像
+    https://cdimage.kali.org/kali-2019.2/kali-linux-2019.2-amd64.iso
+
+
+    更换更新源,命令行中执行一下命令
+    gedit /etc/apt/sources.list
+    替换sources.list里面的内容
+
+　  #清华大学源(推荐)
+
+    deb http://mirrors.tuna.tsinghua.edu.cn/kali kali-rolling main contrib non-free
+
+　  deb-src https://mirrors.tuna.tsinghua.edu.cn/kali kali-rolling main contrib non-free
+   
+
+
+deb https://packagecloud.io/amjith/mycli/ubuntu/ trusty main
+    apt-get update 命令即可更新源
+    apt-get upgrade 更新软件
+
+2.1 准备攻击环境
+    安装好kali linux 之后，我们打开终端，在终端中输入 msfconsole 
+    网上原有的教程要求从CSDN上下载db_autopwn.rb文件，且不说大家不一定有CSDN账号，而且下载还要2积分；关键问题是这个文件在我的metasploit下运行不了，有图有真相：
+
+    报错的信息包含了一个网址，点进去一看发现是metasploit提供的帮助，上面给出了db_autopwn在github上的地址。
+
+    点击进入github之后，可以看到‍db_auopwn是一个单独的rb文件，而且公开了源代码。这么重要的模块一定经常有人来观摩学习代码，所以大可不必担心里面有什么“邪恶”的东西。
+
+    如果没有github账户，可以直接将代码全部“选中”->"复制"，然后粘贴到记事本（我用的是Kali Linux自带的Leadpad），并命名为db_auopwn.rb文件，一定要注意后缀名为“rb”，保存。在Kali Linux上可以看出文件图标变成了ruby的“红宝石”。
+
+    将db_auopwn.rb文件复制粘贴到metasploit的plugin文件夹中，这个路径可以通过load一个不存在的插件（比如hahaha。。。），通过报错的信息得到。
+
+    然后打开msfconsole，输入load db_auopwn，可以看出，如果已经load过（那个不靠谱的）db_autopwn的话，会报错。
+
+    metasploit的装载是“load”，卸载就是“unload”，我们用unload卸载db_autopwn即可。如图显示“卸载成功”。
+
+    再输入load db_autopwn装载该插件，可以看出装载成功。
+
+    注意，以后每打开一次metasploit，如果要用db_autopwn的话，就要重新装载（load）一次。
+
+3.1 进行攻击
+    命令行输入 msfdb init 对msf数据库进行初始化
+
+    msfconsole
+
+    打开metasploit console
+
+    load db_autopwn
+
+    db_nmap -O 192.168.30.60 对T-pot进行端口扫描，并且将扫描数据存在数据库里
+
+    db_autopwn -p -t -e 利用数据库的扫描数据进行自动化的攻击
+
+3.2 分析攻击
+    
+    
